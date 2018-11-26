@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Getting Started</title>
+    </head>
+    <body>
+        <script src="../dist/rum.min.js"></script>
+
+        <script src="./test-rum.js"></script>
+
+        <script type="text/javascript">
+
+            function checkInput() {
+
+                var inputFrom = document.getElementById("rumInfoFrom");
+            
+                if (inputFrom.endpoint.value == '') {
+
+                    alert('RUM Dispatch Endpoint is empty!');
+                    return;
+                }
+            
+                if (inputFrom.pid.value == '') {
+
+                    alert('Project ID is empty!');
+                    return;
+                }
+            
+                if (inputFrom.token.value == '') {
+
+                    alert('Project token is empty!');
+                    return;
+                }
+            
+                var pid = parseInt(inputFrom.pid.value);
+
+                if (pid == NaN) {
+
+                    alert('Project ID is not number!');
+                    return;
+                }
+            
+                inputFrom.endpoint.disabled = true;
+                inputFrom.pid.disabled = true;
+                inputFrom.token.disabled = true;
+                inputFrom.uid.disabled = true;
+                inputFrom.test.disabled = true;
+            
+                test(inputFrom.endpoint.value, pid, inputFrom.token.value, inputFrom.uid.value);
+            }
+        </script>
+            
+        <form id="rumInfoFrom">
+            RUM Dispatch Endpoint: <input type="text" name="endpoint" value="rum-wss-test-nx.ifunplus.cn:13555">&nbsp;&nbsp;&nbsp;&nbsp; Project ID: <input type="text" name="pid" value="41000005"><br>
+            Login token: <input type="text" name="token" value="dd38c76b-91c2-4be1-8607-7b9e860947b1">&nbsp;&nbsp;&nbsp;&nbsp; User ID: <input type="text" name="uid" value=""><br>
+            <input type="button" name="test" value="test" onclick="checkInput()">
+        </form>
+    </body>
+</html>
