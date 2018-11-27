@@ -595,6 +595,11 @@ function appendUser(event, delay) {
         event.pid = this._pid || 0;
     }
 
+    if (!event.rid) {
+
+        event.rid = getRid.call(this);
+    }
+
     if (!event.ts) {
 
         if (!this._rumEvent.timestamp) {
