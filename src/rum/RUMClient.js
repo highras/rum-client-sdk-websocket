@@ -26,7 +26,6 @@ class RUMClient {
         this._sendInterval = 0;
         this._pingInterval = 0;
 
-        this._pubip = null;
         this._configVersion = 0;
 
         this._platformImpl = options.platformImpl;
@@ -134,7 +133,7 @@ class RUMClient {
 
             if (self._sessionTimestamp) {
 
-                let timeout = self.isMobile ? RUMConfig.RESET_OPENEVENT_INTERVAL_MOBILE : RUMConfig.RESET_OPENEVENT_INTERVAL;
+                let timeout = self._platformRum.isMobile ? RUMConfig.RESET_OPENEVENT_INTERVAL_MOBILE : RUMConfig.RESET_OPENEVENT_INTERVAL;
 
                 if (Date.now() - self._sessionTimestamp >= timeout) {
 
@@ -492,7 +491,6 @@ function ping() {
 
         self._rumEvent.timestamp = +(data['ts']);
         self._rumEvent.sizeLimit = +(data['bw']);
-        self._pubip = (data['ip']);
 
         if (self._debug) {
 
