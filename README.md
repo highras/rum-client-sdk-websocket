@@ -1,7 +1,8 @@
 # FPNN RUM WebJs SDK #
-[Wechat Version](README-WECHAT.md)
+[Readme Wechat](README-WECHAT.md)
 
-* 不支持`FPNN`加密链接。
+* 不支持`FPNN`加密链接, 支持`SSL`加密链接
+* 支持源码方式接入, 支持自定义打包
 
 #### 关于三方包依赖 ####
 * [buffer](https://github.com/feross/buffer) `./libs/buffer.js`

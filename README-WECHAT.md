@@ -1,7 +1,7 @@
 # FPNN RUM WebJs SDK #
 
-* 不支持`FPNN`加密链接
-* SDK源代码接入
+* 不支持`FPNN`加密链接, 支持`SSL`加密链接
+* 源码方式接入
 
 #### 关于三方包依赖 ####
 * [base64](https://github.com/dankogai/js-base64) `./libs/base64-js.js`
