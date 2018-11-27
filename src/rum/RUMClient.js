@@ -18,31 +18,21 @@ class RUMClient {
         this._pid = options.pid;
         this._token = options.token;
 
-        this._pt = 0;
-        this._wc = 0;
+        this._ping_eid = 0;
+        this._ping_latency = 0;
+        this._write_count = 0;
 
         this._midCount = 0;
         this._sendInterval = 0;
         this._pingInterval = 0;
 
-        this._pubIP = null;
-        this._isReady = false;
+        this._pubip = null;
         this._configVersion = 0;
 
         this._platformImpl = options.platformImpl;
         this._platformRum = options.platformRum || new PlatFormRum();
 
         FPEvent.assign(this._platformRum);
-
-        this._lang = this._platformRum.lang || '';
-        this._manu = this._platformRum.manu || '';
-        this._model = this._platformRum.model || '';
-        this._os = this._platformRum.os || '';
-        this._osv = this._platformRum.osv || '';
-        this._nw = this._platformRum.network || '';
-
-        this._carrier = this._platformRum.carrier || '';
-        this._from = this._platformRum.from || '';
 
         this._uid = (options.uid && options.uid.toString()) || '';
         this._appv = options.appv || '';
@@ -63,6 +53,8 @@ class RUMClient {
     destroy() {
 
         this._midCount = 0;
+        this._ping_eid = 0;
+        this._write_count = 0;
 
         if (this._sendInterval) {
 
@@ -149,6 +141,8 @@ class RUMClient {
                     openEvent.call(self);
                 }
             }
+            
+            self.emit('ready');
 
             startPing.call(self);
             startSend.call(self);
@@ -164,7 +158,6 @@ class RUMClient {
             stopPing.call(self);
             stopSend.call(self);
 
-            self._isReady = false;
             self.emit('close');
         });
     
@@ -218,17 +211,12 @@ function addPlatformListener() {
 
     this._platformRum.on('network_change', function(data) {
 
-        self._nw = data.cs;
         writeEvent.call(self, 'nwswitch', { sstate:data.ss, cstate:data.cs });
     });
 
-    this._platformRum.on('network', function(nw) {
+    this._platformRum.on('network', function() {
 
-        if (!self._rumEvent.isEmpty(nw)) {
-
-            self._nw = nw;
-            appendUser.call(self, { nw: self._nw }, true);
-        }
+        appendUser.call(self, { nw: self._platformRum.network }, true);
     });
 
     this._platformRum.on('memory_warning', function(data) {
@@ -250,7 +238,7 @@ function addPlatformListener() {
 
         let event = {
 
-            cstate: self._nw,
+            cstate: self._platformRum.network,
         } 
 
         if (data) {
@@ -289,16 +277,12 @@ function addPlatformListener() {
 
 function writeEvent(ev, event, strict) {
 
-    if (this._isReady) {
-
-        this._wc++;
-    }
-
     strict = strict || false;
 
     if (!event.eid) {
 
         event.eid = genMid.call(this);
+        this._write_count++;
     }
 
     event.ev = ev;
@@ -370,15 +354,15 @@ function openEvent() {
         sh: this._platformRum.screenheight || 0
     }
 
-    event.manu = this._manu || '';
-    event.model = this._model || '';
-    event.os = this._os || '';
-    event.osv = this._osv || '';
-    event.nw = this._nw || '';
-    event.carrier = this._carrier || '';
-    event.lang = this._lang || '';
+    event.manu = this._platformRum.manu || '';
+    event.model = this._platformRum.model || '';
+    event.os = this._platformRum.os || '';
+    event.osv = this._platformRum.osv || '';
+    event.nw = this._platformRum.network || '';
+    event.carrier = this._platformRum.carrier || '';
+    event.lang = this._platformRum.lang || '';
+    event.from = this._platformRum.from || '';
     event.appv = this._appv || '';
-    event.from = this._from || '';
     event.first = this._first;
     event.v = RUMConfig.VERSION;
     event.uid = this._uid;
@@ -405,15 +389,15 @@ function loadConfig() {
     payload.uid = this._uid;
     payload.rid = getRid.call(this);
 
-    payload.lang = this._lang || '';
-    payload.manu = this._manu || '';
-    payload.model = this._model || '';
-    payload.os = this._os || '';
-    payload.osv = this._osv || '';
-    payload.nw = this._nw || '';
-    payload.carrier = this._carrier || '';
+    payload.lang = this._platformRum.lang || '';
+    payload.manu = this._platformRum.manu || '';
+    payload.model = this._platformRum.model || '';
+    payload.os = this._platformRum.os || '';
+    payload.osv = this._platformRum.osv || '';
+    payload.nw = this._platformRum.network || '';
+    payload.carrier = this._platformRum.carrier || '';
+    payload.from = this._platformRum.from || '';
     payload.appv = this._appv || '';
-    payload.from = this._from || '';
 
     let options = {
         flag: 0,
@@ -438,12 +422,6 @@ function loadConfig() {
         }
 
         self._rumEvent.updateConfig(data['events']);
-
-        if (!self._isReady) {
-            
-            self._isReady = true;
-            self.emit('ready');
-        }
     }, RUMConfig.SENT_TIMEOUT);
 }
 
@@ -471,6 +449,12 @@ function ping() {
         console.log('[RUM] ping...');
     }
 
+    let ping_eid = this._ping_eid;
+    let write_count = this._write_count;
+
+    this._write_count = 0;
+    this._ping_eid = genMid.call(this);
+
     let salt = genSalt.call(this);
 
     let payload = {
@@ -484,9 +468,11 @@ function ping() {
 
     payload.sid = this._session || 0;
     payload.cv = this._configVersion || 0;
-    payload.pt = this._pt || 0;
+    payload.pt = this._ping_latency || 0;
     payload.ss = this._rumEvent.storageSize || 0;
-    payload.qps = Math.round(this._wc / (RUMConfig.PING_INTERVAL / 1000));
+    payload.wc = write_count;
+    payload.feid = ping_eid;
+    payload.teid = this._ping_eid;
 
     let options = {
         flag: 0,
@@ -499,7 +485,7 @@ function ping() {
 
     sendQuest.call(this, this._baseClient, options, function(err, data) {
 
-        self._pt = self._platformRum.tickNow - pingTime;
+        self._ping_latency = self._platformRum.tickNow - pingTime;
 
         if (err) {
 
@@ -509,7 +495,7 @@ function ping() {
 
         self._rumEvent.timestamp = +(data['ts']);
         self._rumEvent.sizeLimit = +(data['bw']);
-        self._pubIP = (data['ip']);
+        self._pubip = (data['ip']);
 
         if (self._debug) {
 

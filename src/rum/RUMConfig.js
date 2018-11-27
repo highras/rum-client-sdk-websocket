@@ -4,7 +4,7 @@ class RUMConfig {
 
     static get VERSION() {
 
-		return '1.0.8';
+		return '1.0.9';
     }
     
     static get PING_INTERVAL() {

@@ -231,7 +231,7 @@ function addNetworkListener() {
             success: function(res) {
 
                 self._network = res.networkType;
-                self.emit('network', self._network);
+                self.emit('network');
             }
         });
     }
