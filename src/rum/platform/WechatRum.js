@@ -385,15 +385,17 @@ function hookHttp() {
 
 function tick_now() {
 
-    if (this._hook.getPerformance) {
+    //TODO 目前wx.getPerformance().now()在不同平台返回值单位不同, 没有找到适当的判断条件.
 
-        if (this._platform == 'devtools') {
+    // if (this._hook.getPerformance) {
 
-            return Math.round(this._hook.getPerformance().now());
-        }
+    //     if (this._platform == 'devtools') {
 
-        return Math.round(this._hook.getPerformance().now() / 1000);
-    }
+    //         return Math.round(this._hook.getPerformance().now());
+    //     }
+
+    //     return Math.round(this._hook.getPerformance().now() / 1000);
+    // }
 
     return Date.now();
 }

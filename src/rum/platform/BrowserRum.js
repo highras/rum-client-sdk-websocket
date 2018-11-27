@@ -203,10 +203,12 @@ function addVisibleListener() {
 
 function tick_now() {
 
-    if (performance) {
+    //TODO 目前performance.now()在不同平台返回值单位不同, 没有找到适当的判断条件.
+    
+    // if (performance) {
 
-        return Math.round(performance.now());
-    }
+    //     return Math.round(performance.now());
+    // }
 
     return Date.now();
 }
