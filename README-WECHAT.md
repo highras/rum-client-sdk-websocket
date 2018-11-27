@@ -1,6 +1,7 @@
 # FPNN RUM WebJs SDK #
 
-* 不支持`FPNN`加密链接。
+* 不支持`FPNN`加密链接
+* SDK源代码接入
 
 #### 关于三方包依赖 ####
 * [base64](https://github.com/dankogai/js-base64) `./libs/base64-js.js`
@@ -13,6 +14,8 @@
 * 参考:[Promise.promisifyAll](http://bluebirdjs.com/docs/api/promise.promisifyall.html)
 
 #### 一个例子 ####
+* 添加依赖包到`libs`文件夹中
+* 创建`livedata`文件夹并导入SDK源代码
 * 目录结构(推荐) 
 ```
 - js/

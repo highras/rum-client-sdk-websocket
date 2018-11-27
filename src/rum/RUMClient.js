@@ -257,10 +257,7 @@ function addPlatformListener() {
                 event.respsize = self._rumEvent.sizeof(data.res.data);
             }
 
-            if (data.latency) {
-
-                event.latency = data.latency;
-            }
+            event.latency = data.latency || 0;
         }
 
         if (self._debug) {
