@@ -25,8 +25,8 @@ class RUMProxy {
 
     buildProxyData(data) {
 
-        return data; 
-        // return JSON.stringify({ endpoint: this._targetEndpoint, data: data });
+        // return data; 
+        return JSON.stringify({ endpoint: this._targetEndpoint, data: data });
     }
 }
 
