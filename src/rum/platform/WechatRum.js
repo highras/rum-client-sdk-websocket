@@ -24,19 +24,19 @@ class WechatRum {
 
         try {
 
-          let res = this._hook.getSystemInfoSync();
+            let res = this._hook.getSystemInfoSync();
 
-          this._model = res.model;
-          this._brand = res.brand;
-          this._pixelRatio = res.pixelRatio;
-          this._screenWidth = res.windowWidth;
-          this._screenHeight = res.windowHeight;
-          this._language = res.language;
-          this._version = res.version;
-          this._system = res.system;
-          this._platform = res.platform;
+            this._model = res.model;
+            this._brand = res.brand;
+            this._pixelRatio = res.pixelRatio;
+            this._screenWidth = res.windowWidth;
+            this._screenHeight = res.windowHeight;
+            this._language = res.language;
+            this._version = res.version;
+            this._system = res.system;
+            this._platform = res.platform;
 
-          this._storageInfo = this._hook.getStorageInfoSync();
+            this._storageInfo = this._hook.getStorageInfoSync();
         } catch (e) {}
 
         if (globalHook && Object.getOwnPropertyNames(this._hook).length != 0) {
@@ -45,7 +45,7 @@ class WechatRum {
         }
 
         hookHttp.call(this);
-	}
+    }
 
     get lang() {
 
