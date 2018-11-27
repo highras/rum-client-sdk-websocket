@@ -1,4 +1,4 @@
-# FPNN RUM WebJs SDK #
+# FPNN RUM WEBSOCKET SDK #
 [Readme Wechat](README-WECHAT.md)
 
 * 不支持`FPNN`加密链接, 支持`SSL`加密链接
