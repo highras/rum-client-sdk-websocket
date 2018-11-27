@@ -2,10 +2,10 @@
 
 class BrowserRum {
 
-	constructor() {
+    constructor() {
 
         this._ua = require('../../../libs/ua-parser.min')();
-	}
+    }
 
     get lang() {
 

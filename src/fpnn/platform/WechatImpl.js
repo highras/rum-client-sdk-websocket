@@ -9,46 +9,45 @@ class WechatImpl {
 
 	open(endpoint) {
 
-        let self = this;
+		let self = this;
 
-        if (!wx || !wx.connectSocket) {
+		if (!wx || !wx.connectSocket) {
 
-       		this.emit('error', new Error('Not support `wx` or `wx.connectSocket` undefined'));
-       		return;
-        }
+			this.emit('error', new Error('Not support `wx` or `wx.connectSocket` undefined'));
+			return;
+		}
 
-        this._socket = wx.connectSocket({
-
-        	url: endpoint,
+		this._socket = wx.connectSocket({
+			url: endpoint,
 			protocols: 'arraybuffer'
-		})
+		});
 
-        this._socket.onOpen(function(header) { 
+		this._socket.onOpen(function(header) {
 
-            self.emit('open');
-        });
-          
-        this._socket.onMessage(function(data) {
+			self.emit('open');
+		});
 
-            self.emit('message', data.data);
-        });
-          
-        this._socket.onClose(function() {
+		this._socket.onMessage(function(data) {
 
-            self.emit('close');
-        });      
+			self.emit('message', data.data);
+		});
 
-        this._socket.onError(function(err) {
+		this._socket.onClose(function() {
 
-            self.emit('error', err);
-        });
+			self.emit('close');
+		});
+
+		this._socket.onError(function(err) {
+
+			self.emit('error', err);
+		});
 	}
 
 	send(data) {
 
 		if (this._socket) {
 
-            this._socket.send({ data: data });
+			this._socket.send({ data: data });
 		}
 	}
 
@@ -64,20 +63,20 @@ class WechatImpl {
 
 		if (this._socket) {
 
-	        return this._socket.readyState == 1;
-        }
+			return this._socket.readyState == 1;
+		}
 
-        return false;
+		return false;
 	}
 
 	get isConnecting() {
 
 		if (this._socket) {
 
-	        return this._socket.readyState == 0;
-        }
+			return this._socket.readyState == 0;
+		}
 
-        return false;
+		return false;
 	}
 }
 

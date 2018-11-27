@@ -99,7 +99,7 @@ class FPConfig {
 	}
 
 	static get CHECK_CBS_INTERVAL() {
-		
+
 		return 1000;
 	}
 
@@ -107,7 +107,7 @@ class FPConfig {
 
 		return 20 * 1000;
 	}
-	
+
 	static get CRYPTO_CURVES() {
 
 		return CRYPTO_CURVES;

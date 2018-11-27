@@ -4,14 +4,14 @@ class BrowserImpl {
 
 	constructor() {
 
-		this._socket = null;
+        this._socket = null;
 	}
 
 	open(endpoint) {
 
         let self = this;
 
-		try {
+        try {
 
             this._socket = new WebSocket(endpoint);
         } catch (err) {
@@ -22,30 +22,30 @@ class BrowserImpl {
 
         this._socket.binaryType = 'arraybuffer';
 
-        this._socket.onopen = function(evt) { 
+        this._socket.onopen = function(evt) {
 
             self.emit('open');
         };
-          
+
         this._socket.onmessage = function(evt) {
 
             self.emit('message', evt.data);
         };
-          
+
         this._socket.onclose = function(evt) {
 
             self.emit('close');
-        };      
+        };
 
         this._socket.onerror = function(evt) {
 
             self.emit('error', evt);
         };
-	}
+    }
 
-	send(data) {
+    send(data) {
 
-		try {
+        try {
 
             this._socket.send(data);
         } catch (err) {
@@ -53,35 +53,35 @@ class BrowserImpl {
             this.emit('error', err);
             return;
         }
-	}
+    }
 
-	close() {
+    close() {
 
-		if (this._socket) {
+        if (this._socket) {
 
-			this._socket.close();
-		}
-	}
+            this._socket.close();
+        }
+    }
 
-	get isOpen() {
+    get isOpen() {
 
-		if (this._socket) {
+        if (this._socket) {
 
-	        return this._socket.readyState == WebSocket.OPEN;
+            return this._socket.readyState == WebSocket.OPEN;
         }
 
         return false;
 	}
 
-	get isConnecting() {
+    get isConnecting() {
 
-		if (this._socket) {
+        if (this._socket) {
 
-	        return this._socket.readyState == WebSocket.CONNECTING;
+            return this._socket.readyState == WebSocket.CONNECTING;
         }
 
         return false;
-	}
+    }
 }
 
 module.exports = BrowserImpl;
