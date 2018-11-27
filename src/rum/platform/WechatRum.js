@@ -2,8 +2,8 @@
 
 class WechatRum {
 
-	constructor(globalHook) {
-
+    constructor(globalHook) {
+        
         this._model = '';
         this._brand = '';
         this._pixelRatio = 0;
