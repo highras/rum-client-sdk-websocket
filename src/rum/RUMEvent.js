@@ -12,8 +12,11 @@ class RUMEvent {
 
     constructor(pid, platformRum, debug) {
 
+        this._rumId = null;
         this._config = null;
         this._events = null;
+        this._isFirst = false;
+
         this._debug = debug;
 
         this._timestamp = 0; 
@@ -22,6 +25,7 @@ class RUMEvent {
         this._delayCount = 0;
         this._platformRum = platformRum;
 
+        this._rum_id_storage = 'rum_rid_' + pid;
         this._rum_events_storage = 'rum_events_' + pid;
 
         this._storageSize = 0;
@@ -206,6 +210,7 @@ class RUMEvent {
 
     destroy() {
 
+
         if (this._secondInterval) {
 
             clearInterval(this._secondInterval);
@@ -218,7 +223,10 @@ class RUMEvent {
             this._storageTimeout = 0;
         }
 
+        this._rumId = null;
         this._config = null;
+        this._events = null;
+        this._isFirst = false;
         this._delayCount = 0;
 
         if (this._platformRum) {
@@ -269,6 +277,32 @@ class RUMEvent {
         }
     }
 
+    get isFirst() {
+
+        if (!this._rumId) {
+
+            getRumId.call(this);
+        }
+
+        if (this._isFirst) {
+
+            this._isFirst = false;
+            return true;
+        }
+
+        return false;
+    }
+
+    get rumId() {
+
+        if (!this._rumId) {
+
+            return getRumId.call(this);
+        }
+
+        return this._rumId;
+    }
+
     sizeof(data) {
 
         if (!data) {
@@ -293,6 +327,26 @@ class RUMEvent {
 
         return 0;
     }
+}
+
+function getRumId() {
+
+    let rum_id = null;
+    let obj = this._platformRum.getItem(this._rum_id_storage);
+
+    if (isEmpty.call(this, obj)) {
+
+        this._isFirst = true;
+
+        rum_id = uuid.call(this, 0, 16);
+        this._platformRum.setItem(this._rum_id_storage, { rid: rum_id });
+    } else {
+
+        rum_id = obj.rid;
+    }
+
+    this._rumId = rum_id.toString();
+    return this._rumId;
 }
 
 function getEventMap(event_map_key) {
@@ -383,8 +437,13 @@ function shiftEvents(event_res, event_map_key) {
         return;
     }
 
-    let ts_arr = [];
+    let retry_arr = [];
     let event_cache = getEventMap.call(this, EVENT_CACHE);
+
+    if (!this._rumId) {
+
+        getRumId.call(this);
+    }
 
     for (let key in events) {
 
@@ -396,11 +455,22 @@ function shiftEvents(event_res, event_map_key) {
 
                 if (!this._timestamp) {
 
-                    ts_arr.push(event);
+                    retry_arr.push(event);
                     continue;
                 }
 
                 event.ts = this._timestamp;
+            }
+
+            if (!event.rid) {
+
+                if (!this._rumId) {
+
+                    retry_arr.push(event);
+                    continue;
+                }
+
+                event.rid = this._rumId;
             }
 
             for (let key in event) {
@@ -435,9 +505,9 @@ function shiftEvents(event_res, event_map_key) {
 
     setEventMap.call(this, event_map_key, events);
 
-    if (ts_arr.length) {
+    if (retry_arr.length) {
 
-        this.writeEvents(ts_arr);
+        this.writeEvents(retry_arr);
     }
 }
 
@@ -517,6 +587,52 @@ function startSecond() {
             self._timestamp++;
         }
     }, 1000);
+}
+
+function uuid(len, radix) {
+
+    let chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split('');
+    let uuid = [], i;
+
+    radix = radix || chars.length;
+ 
+    if (len) {
+
+        // Compact form
+        for (i = 0; i < len; i++) {
+
+            uuid[i] = chars[ 0 | Math.random() * radix ];
+        }
+    } else {
+
+        // rfc4122, version 4 form
+        let r;
+ 
+        // rfc4122 requires these characters
+        uuid[8] = uuid[13] = uuid[18] = uuid[23] = '-';
+        uuid[14] = '4';
+ 
+        // Fill in random data.  At i==19 set the high bits of clock sequence as
+        // per rfc4122, sec. 4.1.5
+        for (i = 0; i < 36; i++) {
+
+            if (!uuid[i]) {
+
+                r = 0 | Math.random() * 16;
+                uuid[i] = chars[ (i == 19) ? (r & 0x3) | 0x8 : r ];
+            }
+        }
+
+        // add timestamp(ms) at prefix
+        let ms = Date.now().toString();
+
+        for (i = 0; i < ms.length; i++) {
+
+            uuid[i] = ms.charAt(i);
+        }
+    }
+ 
+    return uuid.join('');
 }
 
 module.exports = RUMEvent;

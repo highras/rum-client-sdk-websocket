@@ -44,9 +44,6 @@ class RUMClient {
         this._proxy = null;
         this._baseClient = null;
         this._rumEvent = new RUMEvent(this._pid, this._platformRum, this._debug);
-
-        this._rid = null;
-        this._first = true;
     }
 
     destroy() {
@@ -273,6 +270,7 @@ function addPlatformListener() {
 
 function writeEvent(ev, event, strict) {
 
+    event.ev = ev;
     strict = strict || false;
 
     if (!event.eid) {
@@ -281,11 +279,25 @@ function writeEvent(ev, event, strict) {
         this._write_count++;
     }
 
-    event.ev = ev;
-    event.pid = this._pid || 0;
-    event.sid = this._session || 0; 
-    event.uid = this._uid;
-    event.rid = getRid.call(this);
+    if (!event.pid) {
+
+        event.pid = this._pid || 0;
+    }
+
+    if (!event.sid) {
+
+        event.sid = this._session || 0; 
+    }
+
+    if (!event.uid) {
+
+        event.uid = this._uid;
+    }
+
+    if (!event.rid) {
+
+        event.rid = this._rumEvent.rumId;
+    }
 
     if (!event.ts) {
 
@@ -301,41 +313,6 @@ function writeEvent(ev, event, strict) {
     }
 
     this._rumEvent.writeEvent(event, false, strict);
-}
-
-function getRid() {
-
-    if (this._rid) {
-
-        return this._rid;
-    }
-
-    let rid = 0;
-    let key = 'rum_rid_' + this._pid;
-    let data = this._platformRum.getItem(key);
-
-    this._first = false;
-
-    if (this._rumEvent.isEmpty(data)) {
-
-        this._first = true;
-
-        rid = uuid.call(this, 0, 16);
-        this._platformRum.setItem(key, { rid: rid });
-    } else {
-
-        rid = data.rid;
-    }
-
-    rid = rid.toString();
-
-    if (rid.indexOf('-') == -1) {
-
-        rid = uuid.call(this, 0, 16);
-        this._platformRum.setItem(key, { rid: rid });
-    }
-
-    return this._rid = rid;
 }
 
 function openEvent() {
@@ -359,10 +336,8 @@ function openEvent() {
     event.lang = this._platformRum.lang || '';
     event.from = this._platformRum.from || '';
     event.appv = this._appv || '';
-    event.first = this._first;
     event.v = RUMConfig.VERSION;
-    event.uid = this._uid;
-    event.rid = getRid.call(this);
+    event.first = this._rumEvent.isFirst;
 
     writeEvent.call(this, 'open', event, true);
 }
@@ -383,7 +358,7 @@ function loadConfig() {
     };
 
     payload.uid = this._uid;
-    payload.rid = getRid.call(this);
+    payload.rid = this._rumEvent.rumId;
 
     payload.lang = this._platformRum.lang || '';
     payload.manu = this._platformRum.manu || '';
@@ -460,7 +435,7 @@ function ping() {
     };
 
     payload.uid = this._uid;
-    payload.rid = getRid.call(this);
+    payload.rid = this._rumEvent.rumId;
 
     payload.sid = this._session || 0;
     payload.cv = this._configVersion || 0;
@@ -597,7 +572,7 @@ function appendUser(event, delay) {
 
     if (!event.rid) {
 
-        event.rid = getRid.call(this);
+        event.rid = this._rumEvent.rumId;
     }
 
     if (!event.ts) {
@@ -780,52 +755,6 @@ function sendQuest(client, options, callback, timeout) {
 
         callback(null, data);
     }, timeout);
-}
-
-function uuid(len, radix) {
-
-    let chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split('');
-    let uuid = [], i;
-
-    radix = radix || chars.length;
- 
-    if (len) {
-
-        // Compact form
-        for (i = 0; i < len; i++) {
-
-            uuid[i] = chars[ 0 | Math.random() * radix ];
-        }
-    } else {
-
-        // rfc4122, version 4 form
-        let r;
- 
-        // rfc4122 requires these characters
-        uuid[8] = uuid[13] = uuid[18] = uuid[23] = '-';
-        uuid[14] = '4';
- 
-        // Fill in random data.  At i==19 set the high bits of clock sequence as
-        // per rfc4122, sec. 4.1.5
-        for (i = 0; i < 36; i++) {
-
-            if (!uuid[i]) {
-
-                r = 0 | Math.random() * 16;
-                uuid[i] = chars[ (i == 19) ? (r & 0x3) | 0x8 : r ];
-            }
-        }
-
-        // add timestamp(ms) at prefix
-        let ms = Date.now().toString();
-
-        for (i = 0; i < ms.length; i++) {
-
-            uuid[i] = ms.charAt(i);
-        }
-    }
- 
-    return uuid.join('');
 }
 
 module.exports = RUMClient;
