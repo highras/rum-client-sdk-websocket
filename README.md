@@ -1,5 +1,4 @@
-# FPNN RUM WEBSOCKET SDK #
-[Readme Wechat](README-WECHAT.md)
+# fpnn rum sdk websocket #
 
 * 不支持`FPNN`加密链接, 支持`SSL`加密链接
 * 支持源码方式接入, 支持自定义构建
@@ -90,3 +89,6 @@ client.customEvent('MY_EVENT', {});
     * `ev`: **(Required | string)** 自定义事件名称
     * `attrs`: **(Optional | object)** 自定义事件内容
     * `strict`: **(Optional | bool)** 是否为严格模式, 严格模式下首先将该事件写入本地缓存, 或引起性能下降, 默认: `false`
+
+#### Wechat ####
+[Wechat Version](README-WECHAT.md)
