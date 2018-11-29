@@ -83,6 +83,10 @@ client.customEvent('MY_EVENT', {});
     * `endpoint`: **(Required | string)** RUMAgent接入地址, 由RUM项目控制台获取
     * `clearStorage`: **(Optional | bool)** 是否格式化本地事件缓存, 默认: `false`
 
+* `session`: **(GET | number)** 会话 ID, 设备唯一, 可用于服务端事件关联
+
+* `rumId`: **(GET | string)** RUM ID, 唯一, 可用于服务端事件关联
+
 * `uid`: **(SET | string)** 设置用户ID
 
 * `customEvent(ev, attrs, strict)`: 上报自定义事件 

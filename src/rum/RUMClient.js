@@ -170,6 +170,16 @@ class RUMClient {
         this._baseClient.connect();
     }
 
+    get session() {
+
+        return this._session;
+    }
+
+    get rumId() {
+
+        return this._rumEvent.rumId;
+    }
+
     set uid(value) {
 
         this._uid = value && value.toString();
@@ -322,7 +332,6 @@ function openEvent() {
 
     let event = {
 
-        ip: '',
         sw: this._platformRum.screenwidth || 0,
         sh: this._platformRum.screenheight || 0
     }
