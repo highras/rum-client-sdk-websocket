@@ -182,6 +182,7 @@ class WechatRum {
         addMemoryWarningListener.call(this);
         addRunningErrorListener.call(this);
         addUpdateListener.call(this);
+        addSettingListener.call(this);
 
         let launchOptions = null;
 
@@ -320,17 +321,89 @@ function addUpdateListener() {
 
         updateManager.onCheckForUpdate(function(res) {
 
-            self.emit('update_info', res);
+            self.emit('check_update', res);
         });
 
         updateManager.onUpdateReady(function() {
 
-            self.emit('update_info', { status: 'ready' });
+            self.emit('check_update', { status: 'ready' });
         });
 
         updateManager.onUpdateFailed(function() {
 
-            self.emit('update_info', { status: 'failed' });
+            self.emit('check_update', { status: 'failed' });
+        });
+    }
+}
+
+function addSettingListener() {
+
+    let self = this;
+
+    if (this._hook.getSetting) {
+
+        this._hook.getSetting({
+
+            success: function(res) {
+
+                let settings = res.authSetting;
+                self.emit('auth_setting', settings);
+
+                if (settings['scope.userInfo']) {
+
+                    getUserInfo.call(self);
+                }
+
+                if (settings['scope.userLocation']) {
+                    
+                    getLocation.call(self);
+                }
+            }
+        });
+    }
+}
+
+function getUserInfo() {
+
+    let self = this;
+
+    if (this._hook.getUserInfo) {
+
+        this._hook.getUserInfo({
+
+            withCredentials: false,
+            success: function(res) {
+
+                self.emit('user_info', res.userInfo);
+            }
+        });
+    }
+}
+
+function getLocation() {
+
+    let self = this;
+
+    if (this._hook.getLocation) {
+
+        this._hook.getLocation({
+
+            type: 'wgs84',
+            altitude: true,
+            success: function(res) {
+
+                self.emit('location_wgs84', res);
+            }
+        });
+
+        this._hook.getLocation({
+
+            type: 'gcj02',
+            altitude: true,
+            success: function(res) {
+
+                self.emit('location_gcj02', res);
+            }
         });
     }
 }

@@ -207,6 +207,7 @@ function addPlatformListener() {
 
     this._platformRum.addSelfListener(function(launchOptions){
 
+        writeEvent.call(self, 'info', { type:'wx_launch_options', options:launchOptions });
         self.customEvent('launch_options', launchOptions);
     });
 
@@ -235,9 +236,29 @@ function addPlatformListener() {
         writeEvent.call(self, 'error', { type:'wx_running_error', message:data.message, stack:data.stack });
     });
 
-    this._platformRum.on('update_info', function(data) {
+    this._platformRum.on('check_update', function(data) {
 
-        writeEvent.call(self, 'info', { type:'wx_version_update', hasUpdate:data.hasUpdate, status:data.status }); 
+        writeEvent.call(self, 'info', { type:'wx_check_update', hasUpdate:data.hasUpdate, status:data.status }); 
+    });
+
+    this._platformRum.on('auth_setting', function(data) {
+
+        writeEvent.call(self, 'info', { type:'wx_auth_setting', settings:data }); 
+    });
+
+    this._platformRum.on('user_info', function(data) {
+
+        writeEvent.call(self, 'info', { type:'wx_user_info', userInfo:data }); 
+    });
+
+    this._platformRum.on('location_wgs84', function(data) {
+
+        writeEvent.call(self, 'info', { type:'wx_location_wgs84', location:data }); 
+    });
+
+    this._platformRum.on('location_gcj02', function(data) {
+
+        writeEvent.call(self, 'info', { type:'wx_location_gcj02', location:data }); 
     });
 
     this._platformRum.on('http_hook', function(data) {
