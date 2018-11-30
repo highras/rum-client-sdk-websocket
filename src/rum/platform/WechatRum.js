@@ -388,16 +388,6 @@ function getLocation() {
 
         this._hook.getLocation({
 
-            type: 'wgs84',
-            altitude: true,
-            success: function(res) {
-
-                self.emit('location_wgs84', res);
-            }
-        });
-
-        this._hook.getLocation({
-
             type: 'gcj02',
             altitude: true,
             success: function(res) {

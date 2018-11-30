@@ -251,11 +251,6 @@ function addPlatformListener() {
         writeEvent.call(self, 'info', { type:'wx_user_info', userInfo:data }); 
     });
 
-    this._platformRum.on('location_wgs84', function(data) {
-
-        writeEvent.call(self, 'info', { type:'wx_location_wgs84', location:data }); 
-    });
-
     this._platformRum.on('location_gcj02', function(data) {
 
         writeEvent.call(self, 'info', { type:'wx_location_gcj02', location:data }); 
