@@ -4,7 +4,7 @@ class BrowserRum {
 
     constructor() {
 
-        this._ua = require('../../../libs/ua-parser.min')();
+        this._ua = UAParser();
     }
 
     get lang() {
@@ -44,12 +44,12 @@ class BrowserRum {
 
     get screenheight() {
 
-        return window.screen.height;
+        return screen.height;
     }
 
     get screenwidth() {
 
-        return window.screen.width;
+        return screen.width;
     }
 
     get carrier() {
@@ -76,7 +76,7 @@ class BrowserRum {
 
         try {
 
-            window.localStorage.setItem(key, value);
+            localStorage.setItem(key, value);
         } catch (err) {
 
             return false;
@@ -92,7 +92,7 @@ class BrowserRum {
 
         try {
 
-            items = window.localStorage.getItem(key);
+            items = localStorage.getItem(key);
         } catch (err) {}
 
         if (!items) {
@@ -113,13 +113,13 @@ class BrowserRum {
 
     removeItem(key) {
 
-        if (window.localStorage) {
+        if (localStorage) {
 
-            if (window.localStorage.hasOwnProperty(key)) {
+            if (localStorage.hasOwnProperty(key)) {
 
                 try {
 
-                    window.localStorage.removeItem(key);
+                    localStorage.removeItem(key);
                     return true;
                 } catch (err) {}
             }

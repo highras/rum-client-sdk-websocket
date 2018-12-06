@@ -8,14 +8,18 @@ const EVENT_MAP_1 = 'event_map_1';
 const EVENT_MAP_2 = 'event_map_2';
 const EVENT_MAP_3 = 'event_map_3';
 
+const DEFAULT_CONF = { '1': [ 'crash', 'error', 'nwswitch', 'open', 'warn', 'append'] };
+
 class RUMEvent {
 
     constructor(pid, platformRum, debug) {
 
         this._rumId = null;
-        this._config = null;
         this._events = null;
         this._isFirst = false;
+
+        this._config = DEFAULT_CONF;
+        this._hasConf = false;
 
         this._debug = debug;
 
@@ -40,6 +44,7 @@ class RUMEvent {
     updateConfig(value) {
 
         this._config = value;
+        this._hasConf = true;
 
         let event_map = getEventMap.call(this, EVENT_MAP_0);
 
@@ -77,42 +82,16 @@ class RUMEvent {
 
             for (let key in event_cache) {
 
-                this.writeEvent(event_cache[key], true);
+                this.writeEvent(event_cache[key]);
             }
         }
 
         setEventMap.call(this, EVENT_CACHE, {});
     }
 
-    writeEvent(event, retry, strict) {
+    writeEvent(event, strict) {
 
         let key = event.ev;
-
-        if (retry) {
-
-            let event_map = getEventMap.call(this, EVENT_MAP_3);
-
-            if (!event_map[key]) {
-                    
-                event_map[key] = [];
-            }
-
-            if (event_map[key].length >= RUMConfig.EVENT_QUEUE_LIMIT) {
-
-                if (this._debug) {
-
-                    console.log('[RUM] event(retry) queue limit & will be shift!', key); 
-                }
-
-                event_map[key].shift(); 
-            }
-    
-            event_map[key].push(event);
-            setEventMap.call(this, EVENT_MAP_3, event_map);
-
-            return;
-        }
-
         let storageKey = selectKey.call(this, key);
 
         if (storageKey) {
@@ -150,20 +129,21 @@ class RUMEvent {
         }
     }
 
-    writeEvents(events, retry) {
+    writeEvents(events) {
 
         for (let key in events) {
 
-            this.writeEvent(events[key], retry);
+            this.writeEvent(events[key]);
         }
     }
 
     clearStorage() {
 
+        this._events = {};
         this._platformRum.setItem(this._rum_events_storage, {});
     }
 
-    clearStorageEvents(events) {
+    removeFromCache(events) {
 
         let event_cache = getEventMap.call(this, EVENT_CACHE);
 
@@ -224,9 +204,12 @@ class RUMEvent {
         }
 
         this._rumId = null;
-        this._config = null;
         this._events = null;
         this._isFirst = false;
+        
+        this._config = DEFAULT_CONF;
+        this._hasConf = false; 
+
         this._delayCount = 0;
 
         if (this._platformRum) {
@@ -264,9 +247,9 @@ class RUMEvent {
         return this._storageSize;
     }
 
-    get rumConfig() {
+    get hasConfig() {
 
-        return this._config;
+        return this._hasConf;
     }
 
     set sizeLimit(value) {
@@ -331,22 +314,19 @@ class RUMEvent {
 
 function getRumId() {
 
-    let rum_id = null;
+    let rum_id = uuid.call(this, 0, 16);
     let obj = this._platformRum.getItem(this._rum_id_storage);
 
-    if (isEmpty.call(this, obj)) {
+    if (obj.rid) {
 
-        this._isFirst = true;
-
-        rum_id = uuid.call(this, 0, 16);
-        this._platformRum.setItem(this._rum_id_storage, { rid: rum_id });
+        rum_id = obj.rid.toString();
     } else {
 
-        rum_id = obj.rid;
+        this._isFirst = true;
+        this._platformRum.setItem(this._rum_id_storage, { rid: rum_id });
     }
 
-    this._rumId = rum_id.toString();
-    return this._rumId;
+    return this._rumId = rum_id;
 }
 
 function getEventMap(event_map_key) {
@@ -437,7 +417,6 @@ function shiftEvents(event_res, event_map_key) {
         return;
     }
 
-    let retry_arr = [];
     let event_cache = getEventMap.call(this, EVENT_CACHE);
 
     if (!this._rumId) {
@@ -453,22 +432,10 @@ function shiftEvents(event_res, event_map_key) {
 
             if (!event.ts) {
 
-                if (!this._timestamp) {
-
-                    retry_arr.push(event);
-                    continue;
-                }
-
                 event.ts = this._timestamp;
             }
 
             if (!event.rid) {
-
-                if (!this._rumId) {
-
-                    retry_arr.push(event);
-                    continue;
-                }
 
                 event.rid = this._rumId;
             }
@@ -504,11 +471,6 @@ function shiftEvents(event_res, event_map_key) {
     }
 
     setEventMap.call(this, event_map_key, events);
-
-    if (retry_arr.length) {
-
-        this.writeEvents(retry_arr);
-    }
 }
 
 function sizeof(str) {
@@ -540,11 +502,6 @@ function sizeof(str) {
 
 function selectKey(innerKey) {
 
-    if (!this._config) {
-
-        return EVENT_MAP_0;
-    }
-
     if (this._config['1'] && this._config['1'].indexOf(innerKey) > -1) {
 
         return EVENT_MAP_1;
@@ -560,7 +517,12 @@ function selectKey(innerKey) {
         return EVENT_MAP_3;
     }
 
-    return null;
+    if (this._hasConf) {
+
+        return null;
+    }
+
+    return EVENT_MAP_0;
 }
 
 function startSecond() {

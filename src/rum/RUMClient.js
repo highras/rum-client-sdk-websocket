@@ -1,7 +1,5 @@
 'use strict'
 
-const FPEvent = require('../fpnn/FPEvent');
-const FPClient = require('../fpnn/FPClient');
 const RUMProxy = require('./RUMProxy');
 const RUMEvent = require('./RUMEvent');
 const RUMConfig = require('./RUMConfig');
@@ -11,9 +9,7 @@ class RUMClient {
 
     constructor(options) {
 
-        this._cyrMD5 = require('../../libs/md5.min');
-
-        FPEvent.assign(this);
+        fpnn.FPEvent.assign(this);
 
         this._pid = options.pid;
         this._token = options.token;
@@ -31,7 +27,7 @@ class RUMClient {
         this._platformImpl = options.platformImpl;
         this._platformRum = options.platformRum || new PlatFormRum();
 
-        FPEvent.assign(this._platformRum);
+        fpnn.FPEvent.assign(this._platformRum);
 
         this._uid = (options.uid && options.uid.toString()) || '';
         this._appv = options.appv || '';
@@ -111,7 +107,7 @@ class RUMClient {
         openEvent.call(this);
         addPlatformListener.call(this);
 
-        this._baseClient = new FPClient({
+        this._baseClient = new fpnn.FPClient({
             endpoint: endpoint, 
             autoReconnect: true,
             connectionTimeout: RUMConfig.SENT_TIMEOUT,
@@ -186,7 +182,7 @@ class RUMClient {
 
         if (this._uid) {
 
-            appendUser.call(this, { uid: this._uid }, true);
+            append.call(this, 'uid', { uid: this._uid });
         }
     }
 
@@ -205,12 +201,6 @@ function addPlatformListener() {
 
     let self = this;
 
-    this._platformRum.addSelfListener(function(launchOptions){
-
-        writeEvent.call(self, 'info', { type:'wx_launch_options', options:launchOptions });
-        self.customEvent('launch_options', launchOptions);
-    });
-
     this._platformRum.on('visible_change', function(visible) {
 
         writeEvent.call(self, visible ? 'fg' : 'bg', {});
@@ -223,7 +213,7 @@ function addPlatformListener() {
 
     this._platformRum.on('network', function() {
 
-        appendUser.call(self, { nw: self._platformRum.network }, true);
+        append.call(self, 'nw', { nw: self._platformRum.network });
     });
 
     this._platformRum.on('memory_warning', function(data) {
@@ -254,6 +244,11 @@ function addPlatformListener() {
     this._platformRum.on('location_gcj02', function(data) {
 
         writeEvent.call(self, 'info', { type:'wx_location_gcj02', location:data }); 
+    });
+
+    this._platformRum.on('system_info', function(data) {
+
+        writeEvent.call(self, 'info', { type:'wx_system_info', systemInfo:data }); 
     });
 
     this._platformRum.on('http_hook', function(data) {
@@ -292,6 +287,12 @@ function addPlatformListener() {
             writeEvent.call(self, 'http', event);
         }
     });
+
+    this._platformRum.addSelfListener(function(launchOptions){
+
+        writeEvent.call(self, 'info', { type:'wx_launch_options', options:launchOptions });
+        self.customEvent('launch_options', launchOptions);
+    });
 }
 
 function writeEvent(ev, event, strict) {
@@ -327,10 +328,7 @@ function writeEvent(ev, event, strict) {
 
     if (!event.ts) {
 
-        if (this._rumEvent.timestamp) {
-
-            event.ts = this._rumEvent.timestamp;
-        }
+        event.ts = this._rumEvent.timestamp;
     }
 
     if (this._debug) {
@@ -338,7 +336,7 @@ function writeEvent(ev, event, strict) {
         console.log('[RUM] write event: ', strict, event);
     }
 
-    this._rumEvent.writeEvent(event, false, strict);
+    this._rumEvent.writeEvent(event, strict);
 }
 
 function openEvent() {
@@ -497,7 +495,7 @@ function ping() {
             console.log('[RUM] ping:', self._configVersion, data);
         }
 
-        if (self._configVersion != +data['cv'] || (+data['cv'] == 0 && !self._rumEvent.rumConfig)) {
+        if (self._configVersion != +data['cv'] || (+data['cv'] == 0 && !self._rumEvent.hasConfig)) {
 
             self._configVersion = +data['cv'];
             loadConfig.call(self);
@@ -536,12 +534,12 @@ function sendEvents(events) {
 
     sendQuest.call(this, this._baseClient, options, function(err, data) {
 
-        self._rumEvent.clearStorageEvents(events);
+        self._rumEvent.removeFromCache(events);
 
         if (err) {
 
             self.emit('error', err);
-            self._rumEvent.writeEvents(events, true);
+            self._rumEvent.writeEvents(events);
             return;
         }
     }, RUMConfig.SENT_TIMEOUT);
@@ -581,92 +579,11 @@ function stopSend() {
     }
 }
 
-function appendUser(event, delay) {
+function append(type, event) {
 
-    let self = this;
-
-    if (!event.sid) {
-
-        event.sid = this._session || 0;
-    }
-
-    if (!event.pid) {
-
-        event.pid = this._pid || 0;
-    }
-
-    if (!event.rid) {
-
-        event.rid = this._rumEvent.rumId;
-    }
-
-    if (!event.ts) {
-
-        if (!this._rumEvent.timestamp) {
-
-            setTimeout(function() {
-
-                appendUser.call(self, event, true);
-            }, 10 * 1000);
-            return;
-        }
-
-        event.ts = this._rumEvent.timestamp;
-    }
-
-    if (this._debug) {
-
-        console.log('[RUM] append user info.', delay, event);
-    }
-
-    let salt = genSalt.call(this);
-
-    for (let key in event) {
-
-        if (!event[key] || event[key].length == 0) {
-
-            delete event[key];
-        }
-    }
-
-    let payload = {
-        sign: genSign.call(this, salt),
-        salt: salt,
-        user: event 
-    };
-
-    let options = {
-
-        flag: 0,
-        method: 'append',
-        payload: JSON.stringify(payload)
-    };
-
-    sendQuest.call(this, this._baseClient, options, function(err, data) {
-
-        if (err) {
-
-            self.emit('error', err);
-            return;
-        }
-
-        // TODO log print
-    }, RUMConfig.SENT_TIMEOUT);
-
-    if (delay) {
-
-        delayAppend.call(this, event);
-    }
-}
-
-function delayAppend(event) {
-
-    let self = this;
-
-    setTimeout(function(args) {
-
-        appendUser.call(self, event, false);
-    }, 10 * 1000);   
+    event.type = type && type.toString();
+    
+    writeEvent.call(this, 'append', event, (event.type == 'uid'));
 }
 
 function buildEndpoint(endpoint) {
@@ -698,7 +615,7 @@ function genMid() {
 
 function genSign(salt) {
 
-    return this._cyrMD5(this._pid + ':' + this._token + ':' + salt).toUpperCase();
+    return md5(this._pid + ':' + this._token + ':' + salt).toUpperCase();
 }
 
 function genSalt() {

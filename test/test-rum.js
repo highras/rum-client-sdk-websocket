@@ -2,7 +2,7 @@
 
 function test(endpoint, pid, token, uid) {
 
-    let client = new RUMClient({
+    let client = new rum.RUMClient({
         pid: pid,
         token: token,
         uid: uid,

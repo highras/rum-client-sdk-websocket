@@ -1,15 +1,15 @@
-import WechatRum from './js/rum/rum/platform/WechatRum'
-import WechatImpl from './js/rum/fpnn/platform/WechatImpl'
-import RUMClient from './js/rum/rum/RUMClient'
+GameGlobal.md5 = require('./js/libs/md5.min.js')
+GameGlobal.fpnn = require('./js/libs/fpnn.min.js')
+GameGlobal.rum = require('./js/libs/rum.min.js')
 
-let client = new RUMClient({
+let client = new rum.RUMClient({
     pid: 41000005,
     token: 'dd38c76b-91c2-4be1-8607-7b9e860947b1',
     appv: '10.0'
     ssl: true,
     debug: true,
-    platformImpl: new WechatImpl(),
-    platformRum: new WechatRum(false)
+    platformImpl: new fpnn.WechatImpl(),
+    platformRum: new rum.WechatRum(false)
 });
 
 client.on('error', function (err) {

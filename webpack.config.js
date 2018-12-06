@@ -1,14 +1,14 @@
 const path = require('path');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = {
-    entry: './src/rum/RUMClient.js',
+    entry: './src/rum.js',
     output: {
         filename: 'rum.min.js',
         path: path.resolve(__dirname, 'dist'),
-        library: 'RUMClient',
+        library: 'rum',
+        libraryTarget: 'umd'
     },
-    devtool: 'source-map',
+    // devtool: 'source-map',
     target: 'web',
     module: {
         rules: [

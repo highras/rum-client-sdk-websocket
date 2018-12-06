@@ -195,6 +195,8 @@ class WechatRum {
 
             launch_options_callback && launch_options_callback(launchOptions)
         }
+
+        getSystemInfo.call(this);
     }
 
     get tickNow() {
@@ -393,6 +395,22 @@ function getLocation() {
             success: function(res) {
 
                 self.emit('location_gcj02', res);
+            }
+        });
+    }
+}
+
+function getSystemInfo() {
+
+    let self = this;
+
+    if (this._hook.getSystemInfo) {
+
+        this._hook.getSystemInfo({
+
+            success: function(res) {
+
+                self.emit('system_info', res);
             }
         });
     }

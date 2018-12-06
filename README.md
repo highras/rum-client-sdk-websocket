@@ -4,9 +4,9 @@
 * 支持源码方式接入, 支持自定义构建
 
 #### 关于三方包依赖 ####
-* [buffer](https://github.com/feross/buffer) `./libs/buffer.js`
+* [fpnn](https://github.com/highras/fpnn-sdk-webjs) `./libs/fpnn.min.js`
 * [md5](https://github.com/emn178/js-md5) `./libs/md5.min.js`
-* [ua-parser](https://github.com/faisalman/ua-parser-js) `./libs/ua-parser.min.js`
+* [UAParser](https://github.com/faisalman/ua-parser-js) `./libs/ua-parser.min.js`
 
 #### Promise支持 ####
 * 支持动态转Promise接口
@@ -23,11 +23,14 @@ yarn run build
 #### 一个例子 ####
 * 参考 `./test/index.html` `./test/test-rum.js` 打开浏览器console输出
 ```html
-<script src="../dist/rum.min.js"></script>
+<script src="../libs/md5.min.js"></script>
+<script src="../libs/ua-parser.min.js"></script>
+<script src="../libs/fpnn.min.js"></script>
+<script src="../libs/rum.min.js"></script>
 ```
 
 ```javascript
-let client = new RUMClient({
+let client = new rum.RUMClient({
     pid: 41000005,
     token: 'dd38c76b-91c2-4be1-8607-7b9e860947b1',
     appv: '10.0',
@@ -56,6 +59,9 @@ client.connect('rum-wss-test-nx.ifunplus.cn:13555');
 client.uid = 'xxxx-xxx-xxxxxxxxxxxxx';
 client.customEvent('MY_EVENT', {});
 ```
+
+#### Wechat ####
+[Wechat Version](README-WECHAT.md)
 
 #### Events ####
 * `event`:
@@ -93,6 +99,3 @@ client.customEvent('MY_EVENT', {});
     * `ev`: **(Required | string)** 自定义事件名称
     * `attrs`: **(Optional | object)** 自定义事件内容
     * `strict`: **(Optional | bool)** 是否为严格模式, 严格模式下首先将该事件写入本地缓存, 或引起性能下降, 默认: `false`
-
-#### Wechat ####
-[Wechat Version](README-WECHAT.md)
