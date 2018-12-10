@@ -190,7 +190,6 @@ class RUMEvent {
 
     destroy() {
 
-
         if (this._secondInterval) {
 
             clearInterval(this._secondInterval);
