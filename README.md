@@ -80,6 +80,7 @@ client.customEvent('MY_EVENT', {});
     * `options.ssl`: **(Optional | bool)** 是否开启SSL加密, 默认: `true`
     * `options.uid`: **(Optional | string)** 应用开放用户ID 
     * `options.appv`: **(Optional | string)** 应用版本号
+    * `options.md5`: **(Optional | function)** `md5`加密方法
     * `options.platformImpl`: **(Optional | object)** 平台接口实现, 默认: `BrowserImpl`
     * `options.platformRum`: **(Optional | object)** 平台RUM实现, 默认: `BrowserRum`
 

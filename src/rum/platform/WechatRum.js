@@ -45,6 +45,7 @@ class WechatRum {
         }
 
         hookHttp.call(this);
+        hookShare.call(this);
     }
 
     get lang() {
@@ -461,6 +462,84 @@ function hookHttp() {
 
             return self._wx_api.request(obj);
         }
+    }
+}
+
+function hookShare() {
+
+    let self = this;
+
+    if (this._wx_api.onShareAppMessage) {
+
+        this._hook.onShareAppMessage = function(callback) {
+
+            let func = function (res) {
+
+                let obj = (callback && callback(res)) || {};
+
+                let req = {
+                    title: obj.title,
+                    imageUrl: obj.imageUrl,
+                    query: obj.query
+                }
+
+                return {
+                    title: obj.title,
+                    imageUrl: obj.imageUrl,
+                    query: obj.query,
+                    success: function(suc_res) {
+
+                        obj.success && obj.success(suc_res);
+                        self.emit('share_hook', { type:'wx_onShareAppMessage_success', res:res, req:req });
+                    },
+                    fail: function(fal_res) {
+
+                        obj.fail && obj.fail(fal_res);
+                        self.emit('share_hook', { type:'wx_onShareAppMessage_fail', res:res, req:req });
+                    },
+                    complete: function(cmp_res) {
+
+                        obj.complete && obj.complete(cmp_res);
+                    }
+                };
+            };
+
+            self._wx_api.onShareAppMessage(func);
+        };
+    }
+
+    if (this._wx_api.shareAppMessage) {
+
+        this._hook.shareAppMessage = function(obj){
+
+            let req = {
+                title: obj.title,
+                imageUrl: obj.imageUrl,
+                query: obj.query
+            };
+
+            let res = {
+                title: obj.title,
+                imageUrl:obj.imageUrl,
+                query: obj.query,
+                success: function(suc_res) {
+
+                    obj.success && obj.success(suc_res);
+                    self.emit('share_hook', { type:'wx_shareAppMessage_success', res:suc_res, req:req });
+                },
+                fail: function(fal_res) {
+
+                    obj.fail && obj.fail(fal_res);
+                    self.emit('share_hook', { type:'wx_shareAppMessage_fail', res:fal_res, req:req });
+                },
+                complete: function(cmp_res) {
+
+                    obj.complete && obj.complete(cmp_res);
+                }
+            };
+
+            self._wx_api.shareAppMessage(res);
+        };
     }
 }
 

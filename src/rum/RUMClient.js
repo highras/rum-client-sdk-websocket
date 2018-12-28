@@ -33,6 +33,8 @@ class RUMClient {
         this._appv = options.appv || '';
         this._debug = options.debug || false;
         this._ssl = options.ssl || true;
+
+        this._md5 = options.md5 || null;
         
         this._session = 0;
         this._sessionTimestamp = 0;
@@ -286,6 +288,11 @@ function addPlatformListener() {
 
             writeEvent.call(self, 'http', event);
         }
+    });
+
+    this._platformRum.on('share_hook', function(data) {
+
+        writeEvent.call(self, 'info', data); 
     });
 
     this._platformRum.addSelfListener(function(launchOptions){
@@ -562,7 +569,7 @@ function startSend() {
 
             if (self._debug) {
 
-                console.log('[rum] will be sent! ', events);
+                console.log('[RUM] will be sent! ', events);
             }
 
             sendEvents.call(self, events);
@@ -615,7 +622,7 @@ function genMid() {
 
 function genSign(salt) {
 
-    return md5(this._pid + ':' + this._token + ':' + salt).toUpperCase();
+    return md5_encode.call(this, this._pid + ':' + this._token + ':' + salt);
 }
 
 function genSalt() {
@@ -697,6 +704,16 @@ function sendQuest(client, options, callback, timeout) {
 
         callback(null, data);
     }, timeout);
+}
+
+function md5_encode(str) {
+
+    if (this._md5) {
+
+        return this._md5(str).toUpperCase();
+    }
+
+    return md5(str).toUpperCase();
 }
 
 module.exports = RUMClient;
