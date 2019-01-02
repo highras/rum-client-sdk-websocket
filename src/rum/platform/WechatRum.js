@@ -477,25 +477,8 @@ function hookShare() {
                     query: obj.query
                 };
 
-                return {
-                    title: obj.title,
-                    imageUrl: obj.imageUrl,
-                    query: obj.query,
-                    success: function(suc_res) {
-
-                        self.emit('share_hook', { type:'wx_onShareAppMessage_success', res:res, req:req });
-                        obj.success && obj.success(suc_res);
-                    },
-                    fail: function(fal_res) {
-
-                        self.emit('share_hook', { type:'wx_onShareAppMessage_fail', res:res, req:req });
-                        obj.fail && obj.fail(fal_res);
-                    },
-                    complete: function(cmp_res) {
-
-                        obj.complete && obj.complete(cmp_res);
-                    }
-                };
+                self.emit('share_hook', { type:'wx_onShareAppMessage', res:res, req:req });
+                return obj;
             };
 
             self._wx_api.onShareAppMessage(func);
@@ -512,27 +495,8 @@ function hookShare() {
                 query: obj.query
             };
 
-            let res = {
-                title: obj.title,
-                imageUrl:obj.imageUrl,
-                query: obj.query,
-                success: function(suc_res) {
-
-                    self.emit('share_hook', { type:'wx_shareAppMessage_success', res:suc_res, req:req });
-                    obj.success && obj.success(suc_res);
-                },
-                fail: function(fal_res) {
-
-                    self.emit('share_hook', { type:'wx_shareAppMessage_fail', res:fal_res, req:req });
-                    obj.fail && obj.fail(fal_res);
-                },
-                complete: function(cmp_res) {
-
-                    obj.complete && obj.complete(cmp_res);
-                }
-            };
-
-            self._wx_api.shareAppMessage(res);
+            self.emit('share_hook', { type:'wx_shareAppMessage', req:req });
+            self._wx_api.shareAppMessage(obj);
         };
     }
 }
