@@ -475,7 +475,7 @@ function hookShare() {
                     title: obj.title,
                     imageUrl: obj.imageUrl,
                     query: obj.query
-                }
+                };
 
                 return {
                     title: obj.title,
@@ -483,13 +483,13 @@ function hookShare() {
                     query: obj.query,
                     success: function(suc_res) {
 
-                        obj.success && obj.success(suc_res);
                         self.emit('share_hook', { type:'wx_onShareAppMessage_success', res:res, req:req });
+                        obj.success && obj.success(suc_res);
                     },
                     fail: function(fal_res) {
 
-                        obj.fail && obj.fail(fal_res);
                         self.emit('share_hook', { type:'wx_onShareAppMessage_fail', res:res, req:req });
+                        obj.fail && obj.fail(fal_res);
                     },
                     complete: function(cmp_res) {
 
@@ -518,13 +518,13 @@ function hookShare() {
                 query: obj.query,
                 success: function(suc_res) {
 
-                    obj.success && obj.success(suc_res);
                     self.emit('share_hook', { type:'wx_shareAppMessage_success', res:suc_res, req:req });
+                    obj.success && obj.success(suc_res);
                 },
                 fail: function(fal_res) {
 
-                    obj.fail && obj.fail(fal_res);
                     self.emit('share_hook', { type:'wx_shareAppMessage_fail', res:fal_res, req:req });
+                    obj.fail && obj.fail(fal_res);
                 },
                 complete: function(cmp_res) {
 
