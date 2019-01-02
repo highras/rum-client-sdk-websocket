@@ -60,5 +60,6 @@ client.customEvent('MY_EVENT', {});
 
 #### HOOK ####
 * 开启平台接口数据抓取, `platformRum: new rum.WechatRum(true)`
-* 目前只支持`http hook`, 开启后自动抓取http状态, 不会抓取请求内容
+* 支持`http hook`, 开启后自动抓取http状态, 不会抓取请求内容
+* 支持`share hook`, 开启后自动抓取平台分享动作,并上报相关内容
 * 开启HOOK会封装并重载`wx`接口, 请了解并关注`Wechat`开放平台相关协议

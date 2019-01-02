@@ -267,23 +267,25 @@ function addVisibleListener() {
 
         this._hook.onHide(function() {
 
-            if (self._isActive) {
-
-                self._isActive = false;
-                self.emit('visible_change', false);
-            }
+            self._isActive = false;
+            self.emit('visible_change', false);
         });
     }
 
     if (this._hook.onShow){
 
-        this._hook.onShow(function() {
+        this._hook.onShow(function(res) {
      
-            if (!self._isActive) {
+            self._isActive = true;
+            self.emit('visible_change', true, res);
+        });
+    }
 
-                self._isActive = true;
-                self.emit('visible_change', true);
-            }
+    if (this._hook.onAppShow) {
+
+         this._hook.onAppShow(function(res) {
+     
+            self.emit('app_show', res.object);
         });
     }
 }

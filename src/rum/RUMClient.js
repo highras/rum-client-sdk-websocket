@@ -203,9 +203,14 @@ function addPlatformListener() {
 
     let self = this;
 
-    this._platformRum.on('visible_change', function(visible) {
+    this._platformRum.on('visible_change', function(visible, res) {
 
         writeEvent.call(self, visible ? 'fg' : 'bg', {});
+
+        if (res) {
+
+            writeEvent.call(self, 'info', { type:'wx_on_show', options:res });
+        }
     });
 
     this._platformRum.on('network_change', function(data) {
