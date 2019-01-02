@@ -280,14 +280,6 @@ function addVisibleListener() {
             self.emit('visible_change', true, res);
         });
     }
-
-    if (this._hook.onAppShow) {
-
-         this._hook.onAppShow(function(res) {
-     
-            self.emit('app_show', res.object);
-        });
-    }
 }
 
 function addMemoryWarningListener() {
