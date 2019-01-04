@@ -8,8 +8,6 @@ const EVENT_MAP_1 = 'event_map_1';
 const EVENT_MAP_2 = 'event_map_2';
 const EVENT_MAP_3 = 'event_map_3';
 
-const DEFAULT_CONF = { '1': [ 'crash', 'error', 'nwswitch', 'open', 'warn', 'append'] };
-
 class RUMEvent {
 
     constructor(pid, platformRum, debug) {
@@ -18,7 +16,7 @@ class RUMEvent {
         this._events = null;
         this._isFirst = false;
 
-        this._config = DEFAULT_CONF;
+        this._config = null;
         this._hasConf = false;
 
         this._debug = debug;
@@ -206,7 +204,7 @@ class RUMEvent {
         this._events = null;
         this._isFirst = false;
         
-        this._config = DEFAULT_CONF;
+        this._config = null;
         this._hasConf = false; 
 
         this._delayCount = 0;
@@ -501,6 +499,11 @@ function sizeof(str) {
 
 function selectKey(innerKey) {
 
+    if (!this._config) {
+
+        return EVENT_MAP_1;
+    }
+
     if (this._config['1'] && this._config['1'].indexOf(innerKey) > -1) {
 
         return EVENT_MAP_1;
@@ -516,12 +519,7 @@ function selectKey(innerKey) {
         return EVENT_MAP_3;
     }
 
-    if (this._hasConf) {
-
-        return null;
-    }
-
-    return EVENT_MAP_0;
+    return null;
 }
 
 function startSecond() {

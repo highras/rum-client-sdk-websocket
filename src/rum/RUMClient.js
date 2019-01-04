@@ -37,7 +37,6 @@ class RUMClient {
         this._md5 = options.md5 || null;
         
         this._session = 0;
-        this._sessionTimestamp = 0;
 
         this._proxy = null;
         this._baseClient = null;
@@ -46,6 +45,7 @@ class RUMClient {
 
     destroy() {
 
+        this._session = 0;
         this._midCount = 0;
         this._ping_eid = 0;
         this._write_count = 0;
@@ -124,16 +124,6 @@ class RUMClient {
             if (self._debug) {
 
                 console.log('[RUM] connect on rum agent!');
-            }
-
-            if (self._sessionTimestamp) {
-
-                let timeout = self._platformRum.isMobile ? RUMConfig.RESET_OPENEVENT_INTERVAL_MOBILE : RUMConfig.RESET_OPENEVENT_INTERVAL;
-
-                if (Date.now() - self._sessionTimestamp >= timeout) {
-
-                    openEvent.call(self);
-                }
             }
             
             self.emit('ready');
@@ -289,7 +279,7 @@ function addPlatformListener() {
             console.log('[RUM] http hook: ', event);
         }
 
-        if (!event.status || event.status >= 300 || event.latency > 500) {
+        if (!event.status || event.status >= 300 || event.latency > 1000) {
 
             writeEvent.call(self, 'http', event);
         }
@@ -353,8 +343,12 @@ function writeEvent(ev, event, strict) {
 
 function openEvent() {
 
+    if (this._session) {
+
+        return;
+    }
+
     this._session = genMid.call(this);
-    this._sessionTimestamp = Date.now();
 
     let event = {
 
@@ -433,14 +427,14 @@ function loadConfig() {
 
 function startPing() {
 
-    ping.call(this);
-
     let self = this;
 
     if (this._pingInterval) {
 
         return;
     }
+
+    ping.call(this);
 
     this._pingInterval = setInterval(function() {
 

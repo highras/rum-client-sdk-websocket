@@ -4,7 +4,7 @@ class RUMConfig {
 
     static get VERSION() {
 
-        return '1.0.13';
+        return '1.0.14';
     }
     
     static get PING_INTERVAL() {
@@ -15,16 +15,6 @@ class RUMConfig {
     static get SENT_TIMEOUT() {
 
         return 20 * 1000;
-    }
-
-    static get RESET_OPENEVENT_INTERVAL() {
-
-    	return 30 * 60 * 1000;
-    }
-
-    static get RESET_OPENEVENT_INTERVAL_MOBILE() {
-
-    	return 1 * 60 * 1000;
     }
 
     static get EVENT_QUEUE_LIMIT() {
