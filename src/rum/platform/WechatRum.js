@@ -176,6 +176,11 @@ class WechatRum {
         httpRequest.call(this, url, callback);
     }
 
+    tryScope() {
+
+        tryScope.call(this);
+    }
+
     addSelfListener(launch_options_callback) {
 
         addVisibleListener.call(this);
@@ -183,7 +188,7 @@ class WechatRum {
         addMemoryWarningListener.call(this);
         addRunningErrorListener.call(this);
         addUpdateListener.call(this);
-        addSettingListener.call(this);
+        tryScope.call(this);
 
         let launchOptions = null;
 
@@ -333,7 +338,7 @@ function addUpdateListener() {
     }
 }
 
-function addSettingListener() {
+function tryScope() {
 
     let self = this;
 

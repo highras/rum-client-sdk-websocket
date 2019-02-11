@@ -175,6 +175,7 @@ class RUMClient {
         if (this._uid) {
 
             append.call(this, 'uid', { uid: this._uid });
+            this._platformRum.tryScope();
         }
     }
 
@@ -230,7 +231,7 @@ function addPlatformListener() {
 
     this._platformRum.on('auth_setting', function(data) {
 
-        writeEvent.call(self, 'info', { type:'wx_auth_setting', settings:data }); 
+        writeEvent.call(self, 'info', { type:'wx_auth_setting', settings:data });
     });
 
     this._platformRum.on('user_info', function(data) {
@@ -613,7 +614,6 @@ function stopSend() {
 function append(type, event) {
 
     event.type = type && type.toString();
-    
     writeEvent.call(this, 'append', event, (event.type == 'uid'));
 }
 

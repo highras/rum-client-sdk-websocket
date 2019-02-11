@@ -133,6 +133,8 @@ class BrowserRum {
         httpRequest.call(this, url, callback);
     }
 
+    tryScope() {}
+
     addSelfListener() {
 
         addVisibleListener.call(this);
