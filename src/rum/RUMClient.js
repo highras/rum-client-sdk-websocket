@@ -279,9 +279,25 @@ function addPlatformListener() {
             console.log('[RUM] http hook: ', event);
         }
 
-        if (!event.status || event.status >= 300 || event.latency > 1000) {
 
-            writeEvent.call(self, 'http', event);
+        writeEvent.call(self, 'http', event);
+
+        if (!event.status || event.status >= 300) {
+
+            delete event.ev;
+            delete event.eid;
+
+            writeEvent.call(self, 'httperr', event);
+            return;
+        } 
+
+        if (event.latency > 1000) {
+
+            delete event.ev;
+            delete event.eid;
+
+            writeEvent.call(self, 'httplat', event);
+            return;
         }
     });
 
@@ -333,12 +349,21 @@ function writeEvent(ev, event, strict) {
         event.ts = this._rumEvent.timestamp;
     }
 
-    if (this._debug) {
+    let cp_event = {};
 
-        console.log('[RUM] write event: ', strict, event);
+    for (let key in event) {
+
+        cp_event[key] = event[key];
     }
 
-    this._rumEvent.writeEvent(event, strict);
+    cp_event.prototype = event.prototype;
+
+    if (this._debug) {
+
+        console.log('[RUM] write event: ', strict, cp_event);
+    }
+
+    this._rumEvent.writeEvent(cp_event, strict);
 }
 
 function openEvent() {
