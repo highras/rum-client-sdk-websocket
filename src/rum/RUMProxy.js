@@ -26,10 +26,10 @@ class RUMProxy {
     buildProxyData(data) {
 
         // no proxy 
-        // return data;
+        return data;
 
         // use wss proxy
-        return JSON.stringify({ endpoint: this._targetEndpoint, data: data });
+        // return JSON.stringify({ endpoint: this._targetEndpoint, data: data });
     }
 }
 
