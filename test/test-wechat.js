@@ -9,7 +9,7 @@ let client = new rum.RUMClient({
     ssl: true,
     debug: true,
     platformImpl: new fpnn.WechatImpl(),
-    platformRum: new rum.WechatRum(false)
+    platformRum: new rum.WechatRum()
 });
 
 client.on('error', function (err) {

@@ -33,7 +33,7 @@ let client = new rum.RUMClient({
     ssl: true,
     debug: true,
     platformImpl: new fpnn.WechatImpl(),
-    platformRum: new rum.WechatRum(false)
+    platformRum: new rum.WechatRum()
 });
 
 client.on('error', function (err) {
@@ -59,7 +59,7 @@ client.customEvent('MY_EVENT', {});
 ```
 
 #### HOOK ####
-* 开启平台接口数据抓取, `platformRum: new rum.WechatRum(true)`
-* 支持`http hook`, 开启后自动抓取http状态, 不会抓取请求内容
-* 支持`share hook`, 开启后自动抓取平台分享动作,并上报相关内容
-* 开启HOOK会封装并重载`wx`接口, 请了解并关注`Wechat`开放平台相关协议
+* 支持`http hook`, 自动抓取http状态, 不会抓取请求内容
+* 支持`share hook`, 自动抓取平台分享动作,并上报相关内容
+* 开启HOOK会重载`wx`接口, 请了解并关注`Wechat`开放平台相关协议
+* 禁用HOOK并停止平台数据抓取:`platformRum: new rum.WechatRum(false)`

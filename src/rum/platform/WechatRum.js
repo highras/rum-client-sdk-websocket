@@ -18,6 +18,7 @@ class WechatRum {
         this._network = '';
 
         this._isActive = true;
+        globalHook = (globalHook !== undefined) ? globalHook : true;
 
         this._wx_api = {};
         this._hook = hook.call(this);
