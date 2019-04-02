@@ -641,7 +641,19 @@ function genMid() {
         this._midCount = 0;
     }
 
-    return +(Date.now().toString() + this._midCount);
+    let strFix = this._midCount.toString();
+
+    if (this._midCount < 100) {
+
+        strFix = '0' + strFix;
+    }
+
+    if (this._midCount < 10) {
+
+        strFix = '0' + strFix;
+    } 
+
+    return +(Date.now().toString() + strFix);
 }
 
 function genSign(salt) {
