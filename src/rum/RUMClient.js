@@ -437,7 +437,7 @@ function loadConfig() {
 
         if (err) {
 
-            self._configversion = 0;
+            self._configVersion = 0;
             self.emit('error', err);
             return;
         }
