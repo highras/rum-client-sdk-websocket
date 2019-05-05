@@ -44,36 +44,6 @@ class RUMEvent {
         this._config = value;
         this._hasConf = true;
 
-        let event_map = getEventMap.call(this, EVENT_MAP_0);
-
-        for (let key in event_map) {
-
-            let storageKey = selectKey.call(this, key);
-
-            if (storageKey) {
-
-                let event_storage = getEventMap.call(this, storageKey);
-
-                if (event_storage[key]) {
-
-                    event_storage[key] = event_map[key].concat(event_storage[key]);
-                } else {
-
-                    event_storage[key] = event_map[key];
-                }
-            } else {
-
-                if (this._debug) {
-
-                    console.log('[RUM] disable event & will be discard!', event_map[key]);
-                } 
-            }
-
-            delete event_map[key];
-        }
-
-        setEventMap.call(this, EVENT_MAP_0, event_map);
-
         let event_cache = getEventMap.call(this, EVENT_CACHE);
 
         if (!isEmpty.call(this, event_cache)) {
@@ -157,21 +127,21 @@ class RUMEvent {
 
         let event_res = { size:0, events:[] };
 
-        shiftEvents.call(this, event_res, EVENT_MAP_1);
+        shiftEvents.call(this, EVENT_MAP_1, this._sizeLimit, true, event_res);
 
         if (event_res.size >= this._sizeLimit) {
 
             return event_res.events;
         }
 
-        shiftEvents.call(this, event_res, EVENT_MAP_2);
+        shiftEvents.call(this, EVENT_MAP_2, this._sizeLimit, true, event_res);
 
         if (event_res.size >= this._sizeLimit) {
 
             return event_res.events;
         }
 
-        shiftEvents.call(this, event_res, EVENT_MAP_3);
+        shiftEvents.call(this, EVENT_MAP_3, this._sizeLimit, true, event_res);
 
         if (event_res.size >= this._sizeLimit) {
 
@@ -405,7 +375,7 @@ function isEmpty(obj) {
     return false;
 }
 
-function shiftEvents(event_res, event_map_key) {
+function shiftEvents(event_map_key, size_limit, catch_able, event_res) {
 
     let events = getEventMap.call(this, event_map_key);
 
@@ -423,7 +393,7 @@ function shiftEvents(event_res, event_map_key) {
 
     for (let key in events) {
 
-        while (events[key].length && event_res.size < this._sizeLimit) {
+        while (events[key].length && event_res.size < size_limit) {
 
             let event = events[key].shift();
 
@@ -451,7 +421,11 @@ function shiftEvents(event_res, event_map_key) {
             }
 
             event_res.events.push(event);
-            event_cache[event.eid] = event;
+
+            if (catch_able) {
+
+                event_cache[event.eid] = event;
+            }
 
             event_res.size += sizeof.call(this, JSON.stringify(event));
         }
@@ -461,7 +435,7 @@ function shiftEvents(event_res, event_map_key) {
             delete events[key];
         }
 
-        if (event_res.size >= this._sizeLimit) {
+        if (event_res.size >= size_limit) {
 
             break;
         }
