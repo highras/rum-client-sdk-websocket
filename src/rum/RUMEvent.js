@@ -281,7 +281,7 @@ class RUMEvent {
 
 function getRumId() {
 
-    let rum_id = uuid.call(this, 0, 16);
+    let rum_id = uuid.call(this, 0, 16, 'c');
     let obj = this._platformRum.getItem(this._rum_id_storage);
 
     if (obj.rid) {
@@ -522,7 +522,7 @@ function startSecond() {
     }, 1000);
 }
 
-function uuid(len, radix) {
+function uuid(len, radix, fourteen) {
 
     let chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split('');
     let uuid_chars = [];
@@ -543,7 +543,7 @@ function uuid(len, radix) {
  
         // rfc4122 requires these characters
         uuid_chars[8] = uuid_chars[13] = uuid_chars[18] = uuid_chars[23] = '-';
-        uuid_chars[14] = '4';
+        uuid_chars[14] = fourteen;
  
         // Fill in random data.  At i==19 set the high bits of clock sequence as
         // per rfc4122, sec. 4.1.5
