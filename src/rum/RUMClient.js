@@ -404,7 +404,7 @@ function loadConfig() {
         console.log('[RUM] load config...');
     }
 
-    let salt = genSalt.call(this);
+    let salt = genMid.call(this);
 
     let payload = {
         pid: this._pid,
@@ -481,7 +481,7 @@ function ping() {
     this._write_count = 0;
     this._ping_eid = genMid.call(this);
 
-    let salt = genSalt.call(this);
+    let salt = genMid.call(this);
 
     let payload = {
         pid: this._pid,
@@ -546,7 +546,7 @@ function stopPing() {
 
 function sendEvents(events) {
 
-    let salt = genSalt.call(this);
+    let salt = genMid.call(this); 
 
     let payload = {
         sign: genSign.call(this, salt),
@@ -659,11 +659,6 @@ function genMid() {
 function genSign(salt) {
 
     return md5_encode.call(this, this._pid + ':' + this._token + ':' + salt);
-}
-
-function genSalt() {
-
-    return +(Date.now().toString());
 }
 
 function isException(isAnswerErr, data) {

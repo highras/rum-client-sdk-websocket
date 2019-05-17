@@ -377,6 +377,11 @@ function getUserInfo() {
             withCredentials: false,
             success: function(res) {
 
+                // if (res.userInfo && res.userInfo.hasOwnProperty('nickName')) {
+
+                //     res.userInfo.nickName = encodeURIComponent(res.userInfo.nickName);
+                // }
+
                 self.emit('user_info', res.userInfo);
             }
         });
